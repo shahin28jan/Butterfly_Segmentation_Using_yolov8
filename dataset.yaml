@@ -1,0 +1,6 @@
+train: D:\projects\ultralytics\yolov8_butterfly\data\train
+val: D:\projects\ultralytics\yolov8_butterfly\data\test
+
+nc: 1
+
+names: ["butterfly"]
