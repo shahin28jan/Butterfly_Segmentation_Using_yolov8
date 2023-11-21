@@ -1,46 +1,9 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""
--------------------------------------------------
-   @File Name:     utils.py
-   @Author:        yash mohite
-   @Date:          2023/5/16
-   @Description:
--------------------------------------------------
-"""
-
 from ultralytics import YOLO
 import streamlit as st
 import cv2
 from PIL import Image
 import tempfile
 import base64
-
-
-
-def set_background(image_file):
-    """
-    This function sets the background of a Streamlit app to an image specified by the given image file.
-
-    Parameters:
-        image_file (str): The path to the image file to be used as the background.
-
-    Returns:
-        None
-    """
-    with open(image_file, "rb") as f:
-        img_data = f.read()
-    b64_encoded = base64.b64encode(img_data).decode()
-    style = f"""
-        <style>
-        .stApp {{
-            background-image: url(data:image/png;base64,{b64_encoded});
-            background-size: cover;
-        }}
-        </style>
-    """
-    st.markdown(style, unsafe_allow_html=True)
-
 
 def _display_detected_frames(conf, model, st_frame, image):
     """
@@ -65,28 +28,14 @@ def _display_detected_frames(conf, model, st_frame, image):
                    use_column_width=True
                    )
 
-
-@st.cache_resource
-def load_model(model_path):
-    """
-    Loads a YOLO object detection model from the specified model_path.
-
-    Parameters:
-        model_path (str): The path to the YOLO model file.
-
-    Returns:
-        A YOLO object detection model.
-    """
-    model = YOLO(model_path)
-    return model
-
+#@st.cache_resource
 
 def infer_uploaded_image(conf, model):
     """
-    Execute inference for uploaded image
-    :param conf: Confidence of YOLOv8 model
-    :param model: An instance of the `YOLOv8` class containing the YOLOv8 model.
-    :return: None
+     Prediction inference for uploaded image
+     param conf: Confidence of YOLOv8 model
+     param model: An instance of the `YOLOv8` class containing the YOLOv8 model.
+     return: None
     """
     source_img = st.sidebar.file_uploader(
         label="Choose an image...",
@@ -106,7 +55,7 @@ def infer_uploaded_image(conf, model):
             )
 
     if source_img:
-        if st.button("Execution"):
+        if st.button("Prediction"):
             with st.spinner("Running..."):
                 res = model.predict(uploaded_image,
                                     conf=conf)
@@ -117,18 +66,18 @@ def infer_uploaded_image(conf, model):
                     st.image(res_plotted,
                              caption="Detected Image",
                              use_column_width=True)
-                    try:
-                        with st.expander("Detection Results"):
-                            for box in boxes:
-                                st.write(box.xywh)
-                    except Exception as ex:
-                        st.write("No image is uploaded yet!")
-                        st.write(ex)
+                    #try:
+                    #    with st.expander("Detection Results"):
+                    #        for box in boxes:
+                    #            st.write(box.xywh)
+                    #except Exception as ex:
+                    #    st.write("No image is uploaded yet!")
+                    #    st.write(ex)
 
 
 def infer_uploaded_video(conf, model):
     """
-    Execute inference for uploaded video
+    Prediction inference for uploaded video
     :param conf: Confidence of YOLOv8 model
     :param model: An instance of the `YOLOv8` class containing the YOLOv8 model.
     :return: None
@@ -141,7 +90,7 @@ def infer_uploaded_video(conf, model):
         st.video(source_video)
 
     if source_video:
-        if st.button("Execution"):
+        if st.button("Prediction"):
             with st.spinner("Running..."):
                 try:
                     tfile = tempfile.NamedTemporaryFile()
@@ -152,11 +101,12 @@ def infer_uploaded_video(conf, model):
                     while (vid_cap.isOpened()):
                         success, image = vid_cap.read()
                         if success:
-                            _display_detected_frames(conf,
+                            _display_detected_frames(conf, model, st_frame, image)
+                            '''display_detected_frames(conf,
                                                      model,
                                                      st_frame,
                                                      image
-                                                     )
+                                                     )'''
                         else:
                             vid_cap.release()
                             break
